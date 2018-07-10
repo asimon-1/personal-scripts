@@ -16,27 +16,18 @@ try:
 except:
     word = 'good'
 
-# Request the thesaurus.com page for the specified word
-url = 'http://www.thesaurus.com/browse/{}'.format(word)
+# Request the synonyms for the specified word
+version = 2
+with open('thesaurus_api.key', 'r') as f:
+    apikey = f.read()
+fmt = ''
+
+url = 'http://words.bighugelabs.com/api/{}/{}/{}/{}'.format(version, apikey, word, fmt)
 r = requests.get(url)
-assert r.status_code == 200, (
+assert r.status_code in [200, 303], (
     "Error getting response from URL: {}\n\nStatus Code was {}".format(
         url, r.status_code))
 
-# Find all div elements which contain synonyms. This website handles multiple
-# homographs by putting them in separate divs. This shows up as separate tabs
-# on the web page.
-pattern_div = re.compile(r"""<div class=\"relevancy-list\">(.*?)</div>""",
-                         re.DOTALL)
-pattern_syn = re.compile(
-    r"""<li><a href=\"http://www\.thesaurus\.com/browse/(\w+)\" (?:class=\"common-word\")? data-id=""",
-    re.DOTALL)
-syn_list = re.findall(pattern_div, r.text)
-assert syn_list is not None, "No synonym divs found!"
-
-# Within each synonym division, print all of the listed synonyms
+# WPrint all of the listed synonyms
 print("\nSynonyms for \"{}\" are:\n".format(word))
-for l in syn_list:
-    results = re.findall(pattern_syn, l)
-    assert results is not None, "No synonym results found!"
-    print('\n'.join(results))
+print(r.text)
