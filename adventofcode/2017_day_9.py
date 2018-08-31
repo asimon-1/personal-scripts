@@ -28,8 +28,9 @@ regex_negated = re.compile(pattern)
 input_stream.append(regex_negated.sub('', input_stream[-1]))
 
 # Remove garbage
-pattern = r"<.*?>"
+pattern = r"<(.*?)>"
 regex_garbage = re.compile(pattern)
+print('Total Garbage Removed: {}'.format(len(''.join(regex_garbage.findall(input_stream[-1])))))
 input_stream.append(regex_garbage.sub('', input_stream[-1]))
 
 # Remove other characters
