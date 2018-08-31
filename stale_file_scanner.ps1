@@ -24,17 +24,22 @@ $emailusername = "notifications"
 $encrypted = Get-Content c:notifications_encrypted_password.txt | ConvertTo-SecureString
 $credential = New-Object System.Management.Automation.PsCredential($emailusername, $encrypted)
 
-function Send-Output {
+function Send-Output
+{
     param([bool]$MailFlag, [string]$Output)
     # Optionally send an email or write to console depending on $MailFlag
-    if ($MailFlag) {
+    if ($MailFlag)
+    {
     Send-MailMessage -From $From -To $To -Subject $Subject -Body $Output -SmtpServer $SMTPServer -UseSsl -Credential $credential
-    } else {
+    }
+    else
+    {
     Write-Output $Output
     }
 }
 
-function Format-RotatingFile {
+function Format-RotatingFile
+{
     param([string]$OutputPath, [datetime]$LastEmail, [int]$Skip)
     # Rotates the file in $OutputPath by $Skip lines, and setting the first line in the file to $LastEmail
     $Content = (Get-Content $OutputPath | Select-Object -Skip $Skip)
@@ -46,10 +51,12 @@ $CurrentTime = Get-Date
 $CurrentTimeString = Get-Date -uformat "%Y-%m-%d %H%M"
 
 # Check if output file exists, and create it if it doesnt
-if (-Not (Test-Path $OutputPath -PathType Leaf)) {
+if (-Not (Test-Path $OutputPath -PathType Leaf))
+{
     $CurrentTimeString | Set-Content $OutputPath
 }
-else {
+else
+{
     # Read current files and store at end of file
     $CurrentFiles = Get-ChildItem -Path $ScanPath -Name -Recurse
     $NewLine =,$CurrentTimeString + $CurrentFiles -join ","
@@ -64,18 +71,20 @@ else {
     $OldFiles = $Head[1..$Head.Length]
     $match = $CurrentFiles | Where-Object { $_ -in $OldFiles } # Get any current files that are also in the oldest entry
 
-    if ($match.Length -gt 0 -and $OldTime.AddHours($TimeThreshold) -lt $CurrentTime) {
+    if ($match.Length -gt 0 -and $OldTime.AddHours($TimeThreshold) -lt $CurrentTime)
+    {
         # There are files that have been in the folder longer than is allowed!
         $Body = $Body + $match
-        if ($LastEmail.AddHours($EmailThreshold) -lt $CurrentTime) {
+        if ($LastEmail.AddHours($EmailThreshold) -lt $CurrentTime)
+        {
             $LastEmail = $CurrentTime
             Send-Output $SendEmail $Body
             Format-RotatingFile $OutputPath $LastEmail 0
         }
     }
-    else {
+    else
+    {
         # No files have been in the folder beyond the threshold.
-        # Send-Output $SendEmail "No stale files exist in $ScanPath"
         Write-Output "No stale files exist in $ScanPath"
     }
 
