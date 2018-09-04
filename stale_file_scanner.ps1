@@ -58,7 +58,7 @@ if (-Not (Test-Path $OutputPath -PathType Leaf))
 else
 {
     # Read current files and store at end of file
-    $CurrentFiles = Get-ChildItem -Path $ScanPath -Name -Recurse
+    $CurrentFiles = Get-ChildItem -Path $ScanPath -Name -Recurse -Filter '*.pdf' -ErrorAction 'SilentlyContinue'
     $NewLine =,$CurrentTimeString + $CurrentFiles -join ","
     Add-Content -Path $OutputPath $NewLine
 
