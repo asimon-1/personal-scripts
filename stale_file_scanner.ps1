@@ -23,6 +23,7 @@ $SMTPServer = "smtp.example.com"
 $emailusername = "notifications"
 $encrypted = Get-Content c:notifications_encrypted_password.txt | ConvertTo-SecureString
 $credential = New-Object System.Management.Automation.PsCredential($emailusername, $encrypted)
+$BodyList = ""
 
 function Send-Output
 {
@@ -74,10 +75,14 @@ else
     if ($match.Length -gt 0 -and $OldTime.AddHours($TimeThreshold) -lt $CurrentTime)
     {
         # There are files that have been in the folder longer than is allowed!
-        $Body = $Body + $match
+        ForEach ($file in $match) {
+            $BodyList = $BodyList + "<li>$file</li>"
+        }
+
         if ($LastEmail.AddHours($EmailThreshold) -lt $CurrentTime)
         {
             $LastEmail = $CurrentTime
+            $Body = "<p>This is an automated email to alert you that the following files have been in the '$ScanPath' folder longer than $TimeThreshold hours:</p><ul>$BodyList</ul>"
             Send-Output $SendEmail $Body
             Format-RotatingFile $OutputPath $LastEmail 0
         }
