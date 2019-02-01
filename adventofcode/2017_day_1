@@ -1,2 +1,0 @@
-def parse(list):
-    for element in list:

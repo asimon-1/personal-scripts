@@ -8,20 +8,19 @@
 # n     YYYY-mm-dd HHMM,file_c,file_d,file_e,file_f # Newest directory snapshot
 
 # Globals
-$ScanPath = ".\test"
+$ScanPath = ".\adventofcode"
 $OutputPath = ".\results.csv"
 $EmailThreshold = 6 # Hours
 $TimeThreshold = 24 # Hours
 
 # Email Credentials https://interworks.com/blog/trhymer/2013/07/08/powershell-how-encrypt-and-store-credentials-securely-use-automation-scripts/
 $SendEmail = $true
-$From = "notifications@example.com"
-$To = "admins@example.com"
+$From = "asimon@domeng.com"
+$To = "asimon@domeng.com","andrewjsimon@protonmail.com"
 $Subject = "Stale Files in $ScanPath"
-$Body = "This is an automated email to alert you that the following files have been in the '$ScanPath' folder longer than $TimeThreshold :"
-$SMTPServer = "smtp.example.com"
-$emailusername = "notifications"
-$encrypted = Get-Content c:notifications_encrypted_password.txt | ConvertTo-SecureString
+$SMTPServer = "exchange.domeng.com"
+$emailusername = "asimon"
+$encrypted = Get-Content notifications_encrypted_password.txt | ConvertTo-SecureString
 $credential = New-Object System.Management.Automation.PsCredential($emailusername, $encrypted)
 $BodyList = ""
 
@@ -31,11 +30,15 @@ function Send-Output
     # Optionally send an email or write to console depending on $MailFlag
     if ($MailFlag)
     {
-    Send-MailMessage -From $From -To $To -Subject $Subject -Body $Output -SmtpServer $SMTPServer -UseSsl -Credential $credential
+        ForEach ($ToAddress in $To)
+        {
+            Send-MailMessage -From $From -To $ToAddress -Subject $Subject -Body $Output -SmtpServer $SMTPServer -UseSsl -Credential $credential -BodyAsHtml
+        }
+
     }
     else
     {
-    Write-Output $Output
+        Write-Output $Output
     }
 }
 
