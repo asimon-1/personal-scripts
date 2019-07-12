@@ -2,3 +2,4 @@ thesaurus_api.key
 .vscode
 .png
 *input*.txt
+__pycache__
