@@ -5,17 +5,12 @@ Disk usage is actually low even for large files since only a single byte is writ
 """
 
 
-def badfunc(*args):
-    sum(args)
-    return
-
-
 if __name__ == "__main__":
     units = {"B": 1, "KB": 1024, "MB": 1024 * 1024, "GB": 1024 * 1024 * 1024}
 
-    Raw = input("Enter the desired size of file (e.g. 10 MB):\t")  # Bad Comment
+    raw = input("Enter the desired size of file (e.g. 10 MB):\t")
 
-    size, unit = Raw.split()
+    size, unit = raw.split()
     size = int(size)
     filename = f"{size}_{unit.upper()}.bin"
     unit = units[unit.upper()]
