@@ -12,8 +12,3 @@ exclude = '''
   | dist
 )/
 '''
-
-[flake8]
-ignore = E501, W503
-max-line-length = 119
-max-complexity = 18
