@@ -1,17 +1,16 @@
 import os
 import glob
 import re
+import pathlib
 
-DIR = "os.path.join(os.getcwd(), "Test")"
+WHATIF = True
+DIR = pathlib.Path("C:/temp/video/_4")
 
-files = glob.glob(os.path.join(DIR, "*"))
-
-pattern = r"(.*\\)\S+\. (.+\.pdf)"
-regex = re.compile(pattern)
+files = [pathlib.Path(p) for p in glob.glob(str(DIR / "**/*.mp4"))]
+print(str(DIR / "**/*.mp4"))
 
 for f in files:
-    print(f)
-    match = regex.search(f)
-    if match:
-        new_name = match.group(1) + match.group(2)
-        os.rename(f, match.group(1) + match.group(2))
+    new_name = DIR / f.name
+    print(f"Renaming {f} to {new_name}")
+    if not WHATIF:
+        os.rename(f, new_name)

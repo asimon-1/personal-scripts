@@ -5,8 +5,8 @@ import sys
 BLOCKSIZE = 65536  # Use 16 bit blocks
 
 
-def compute_hash(filename, hashname='md5'):
-    '''Computes the hash digest of filename using the hash function specified.
+def compute_hash(filename, hashname="md5"):
+    """Computes the hash digest of filename using the hash function specified.
 
     Arguments:
         filename {str} -- Path to file to be hashed.
@@ -16,11 +16,11 @@ def compute_hash(filename, hashname='md5'):
 
     Returns:
         {hex} -- The hash digest of the file
-    '''
+    """
 
     if hashname in hashlib.algorithms_available:
         hsh = hashlib.new(hashname)
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             buf = f.read(BLOCKSIZE)
             while len(buf) > 0:
                 hsh.update(buf)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     try:
         hashname = args[2]
     except:
-        hashname = 'md5'
+        hashname = "md5"
 
     # Compute and return hashes
     hash_digest = compute_hash(filename, hashname)

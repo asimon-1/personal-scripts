@@ -66,13 +66,13 @@ def get_text(mode="PARAGRAPHS", howmany=3):
         str -- The returned text.
     """
 
-    url = 'https://www.freeformatter.com/lorem-ipsum-generator.html'
+    url = "https://www.freeformatter.com/lorem-ipsum-generator.html"
     data = {
         "type": "LOREMIPSUM",
         "mode": mode,
         "howMany": howmany,
         "size": "MEDIUM",
-        "includeHtml": False
+        "includeHtml": False,
     }
 
     status = status_check(url)
@@ -83,7 +83,7 @@ def get_text(mode="PARAGRAPHS", howmany=3):
     return text
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = sys.argv
     modes = ["PARAGRAPHS", "SENTENCES", "WORDS", "LIST_ITEMS"]
     mode = "PARAGRAPHS"

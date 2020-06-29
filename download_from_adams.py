@@ -32,7 +32,6 @@ def download_files():
                 f.write(response.content)
         else:
             print(f"Error retrieving document {doc} from ADAMS!")
-    window.quit()
 
 
 if __name__ == "__main__":

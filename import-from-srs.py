@@ -1,6 +1,6 @@
-'''Imports requirements from an SRS document and puts them in an Excel sheet for easy manipulation.
+"""Imports requirements from an SRS document and puts them in an Excel sheet for easy manipulation.
 > python import-from-srs.py source-srs.docx destination.xlsx
-'''
+"""
 
 import re
 import sys
@@ -32,9 +32,9 @@ if __name__ == "__main__":
         source = sys.argv[1]
         destination = sys.argv[2]
     except:
-        raise Exception('Incorrect number of arguments.')
+        raise Exception("Incorrect number of arguments.")
 
-    pattern = r"R \[\d+\]"
+    pattern = r"R \[\w{4}\]"
     regex = re.compile(pattern)
     doc = Document(source)
     hits = docx_find_regex(doc, regex)
@@ -43,12 +43,12 @@ if __name__ == "__main__":
     worksheet = workbook.add_worksheet()
     header_rows = 1
 
-    worksheet.write(0, 0, 'Raw Text')
-    worksheet.write(0, 1, 'Requirement Number')
-    worksheet.write(0, 2, 'Requirement Text')
+    worksheet.write(0, 0, "Raw Text")
+    worksheet.write(0, 1, "Requirement Number")
+    worksheet.write(0, 2, "Requirement Text")
     for ind, hit in enumerate(hits):
-        req_num = hit.split(']', 1)[0].split('[', 1)[1]
-        req_text = hit.split(']', 1)[1]
+        req_num = hit.split("]", 1)[0].split("[", 1)[1]
+        req_text = hit.split("]", 1)[1]
         worksheet.write(header_rows + ind, 0, hit)
         worksheet.write(header_rows + ind, 1, req_num)
         worksheet.write(header_rows + ind, 2, req_text)
