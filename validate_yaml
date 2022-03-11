@@ -1,0 +1,147 @@
+"""This file exposes functions to validate input YAML files against a predefined schema.
+
+The schema specifies a structure to the YAML file, including:
+* Where a key is allowed to exist in the tree structure
+* Which keys are required and which are optional
+* What the type of data within each key can be (integer, bool, string, dictionary, etc)
+Note that the schema for axial cases is separate from the schema for circumferential cases.
+
+The schema does NOT specify the data content of the input file and does not impose any
+constraints on the technical content of the input file, such as enforcing that the
+yield strength is lower than the ultimate strength. That functionality is implemented
+elsewhere.
+
+This script can be run as a standalone script, which will prompt the user for files to
+validate, or the functions validate_file() or validate_files() can be called from other
+python modules.
+"""
+import os
+import tkinter as tk
+from tkinter import filedialog  # This submodule must be explicitly imported.
+from typing import Dict, List, Optional
+
+import yamale
+
+
+def prompt_filenames(
+    initialdir=os.getcwd(),
+    title="Please select the input files",
+    filetypes=(("All Files", ".*"),),
+):
+    """Prompt the user for the location of one or more files.
+
+    Keyword Arguments:
+        initialdir {string} -- Initial directory to start the file browser in.
+            (default: os.getcwd())
+        title {string} -- Window title.
+            (default: Please select a file")
+        filetypes {sequence of tuples} -- Allowed file types and extensions.
+            (default: (("All Files", ".*"),))
+
+    Returns:
+        tuple -- Absolute paths to selected files.
+
+    """
+    root = tk.Tk()
+    root.withdraw()  # Hide main window
+
+    # Prompt for the file path
+    filenames = filedialog.askopenfilenames(
+        parent=root,
+        initialdir=initialdir,
+        title=title,
+        filetypes=filetypes,
+    )
+
+    root.destroy()  # Clean up Tk objects
+
+    return filenames
+
+
+def validate_file(
+    schema_file: str, input_file: Optional[str] = None, input_content: Optional[str] = None
+) -> Optional[str]:
+    """Validates an individual file against the provided schema.
+
+    Args:
+        schema_file (str): The schema filepath to be validated against
+        input_file (Optional[str]): The filepath to be validated, if input_content is not given
+        input_content (Optional[str]): The yaml contents to be validated
+
+    Returns:
+        Optional[str]: The validation errors.
+                        If the file validated OK, None is returned.
+    """
+    schema = yamale.make_schema(schema_file)
+    errors = None
+    if input_content:
+        data = yamale.make_data(content=input_content)
+    else:
+        data = yamale.make_data(input_file)
+
+    try:
+        yamale.validate(schema, data)
+    except ValueError as e:
+        errors = str(e)
+    return errors
+
+
+def validate_files(
+    orientation: str, filenames: Optional[List[str]] = None, verbose: bool = True
+) -> Optional[Dict[str, str]]:
+    """Perform YAML structure validation on a set of user-selected files.
+
+    Args:
+        orientation (str): Either "circ" or "axial". Determines the schema to be used.
+        filenames (Optional[List[str]]): A list of files to validate. If omitted, the user is prompted.
+        verbose (bool, optional): Determines whether errors should be printed. Defaults to True.
+
+    Raises:
+        ValueError: Raised if orientation is not either "circ" or "axial".
+
+    Returns:
+        Optional[Dict[str, str]]: The errors encountered in each file, keyed by filename.
+                                    If no errors are encountered, an empty dict is returned.
+                                    If no files are selected, None is returned.
+    """
+    if orientation == "axial":
+        schema_file = "schema_axial.yaml"
+    elif orientation == "circ":
+        schema_file = "schema_circ.yaml"
+    else:
+        raise ValueError(f"Invalid orientation: {orientation}")
+    errors = {}
+
+    # Prompt user if no files provided in keyword argument
+    if not filenames:
+        filenames = prompt_filenames(
+            title=f"Please select the {orientation} input files",
+            filetypes=(("YAML Files", ".yaml .yml"),),
+        )
+
+    if filenames:
+        for f in filenames:
+            e = validate_file(schema_file, input_file=f)
+            if e:
+                errors.update({f: e})
+        if errors:
+            print(f"The following {orientation} files had validation errors:")
+            print("\n".join(errors.keys()))
+            if verbose:
+                print("\n--------")
+                print("\n\n".join(errors.values()))
+                print("\n")
+        else:
+            print(f"All selected {orientation} cases OK.\n")
+        return errors
+    else:
+        if verbose:
+            print(f"No {orientation} cases selected.\n")
+        return None
+
+
+if __name__ == "__main__":
+    verbose = True
+
+    errors = validate_files("circ", verbose=verbose)
+    errors = validate_files("axial", verbose=verbose)
